@@ -87,8 +87,10 @@ function App() {
   const remaining = state?.remaining ?? 0
   const progress = state ? (remaining / state.duration) * 100 : 0
 
+  const overlayOnly = new URLSearchParams(window.location.search).has('overlay')
+
   return (
-    <div className="layout">
+    <div className={overlayOnly ? 'layout overlay-only' : 'layout'}>
       <section className="overlay" aria-label="Màn hình trò chơi TikTok Live">
         <header className="live-header">
           <span className="live-mark">● DEMO LIVE</span>
@@ -181,7 +183,7 @@ function App() {
         <div className="feedback" role="status">{feedback || 'Mẹo: câu đầu tiên có đáp án JACKET.'}</div>
         <div className="control-note">
           <strong>OBS / TikTok LIVE Studio</strong>
-          <p>Thêm Browser Source với URL <code>http://localhost:5173</code> và đặt kích thước 1080 × 1920. Đây là bản demo có bảng điều khiển; giao diện overlay sẽ được tách thành đường dẫn riêng ở bước tiếp theo.</p>
+          <p>Thêm Browser Source với URL <code>http://localhost:5173/?overlay=1</code>, đặt kích thước 1080 × 1920. Trang điều khiển vẫn ở <code>http://localhost:5173</code>.</p>
         </div>
       </aside>
     </div>
