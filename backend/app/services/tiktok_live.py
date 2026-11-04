@@ -15,6 +15,25 @@ logger = logging.getLogger(__name__)
 USERNAME = re.compile(r"^@?[A-Za-z0-9._]{2,30}$")
 
 
+async def _close_client(client: Any) -> None:
+    """Safely close a TikTokLiveClient inside a running asyncio event loop.
+
+    Note: ``client.close()`` in TikTokLive 7.x calls ``_clean_tasks()``, which
+    invokes ``loop.run_until_complete()`` and raises ``RuntimeError: This event
+    loop is already running`` when called from an async server like FastAPI.
+    """
+    try:
+        await asyncio.wait_for(client.disconnect(), timeout=5)
+    except Exception as exc:
+        logger.debug("TikTok LIVE disconnect: %s", exc)
+    web = getattr(client, "_web", None)
+    if web is not None and hasattr(web, "close"):
+        try:
+            await asyncio.wait_for(web.close(), timeout=5)
+        except Exception as exc:
+            logger.debug("TikTok LIVE web close: %s", exc)
+
+
 class TikTokBridge:
     def __init__(self) -> None:
         self._lock = asyncio.Lock()
@@ -64,14 +83,21 @@ class TikTokBridge:
             @client.on(ConnectEvent)
             async def on_connect(_event: Any) -> None:
                 self._state = "connected"
+                self._error = None
                 await self._notify()
 
             @client.on(CommentEvent)
             async def on_comment(event: Any) -> None:
-                # Use unique_id rather than nickname as the stable scoring key.
+                # Use unique_id (or v3 display_id / nickname fallback) as the player key.
                 user = getattr(event, "user", None)
-                identity = getattr(user, "unique_id", None)
+                identity = (
+                    getattr(user, "unique_id", None)
+                    or getattr(user, "display_id", None)
+                    or getattr(user, "nickname", None)
+                )
                 text = getattr(event, "comment", None)
+                if not isinstance(text, str):
+                    text = getattr(event, "content", None)
                 if not identity or not isinstance(text, str):
                     return
                 self._comments += 1
@@ -100,7 +126,14 @@ class TikTokBridge:
                     await self._notify()
                     await asyncio.sleep(min(2 ** attempt, 8))
                 try:
-                    await client.connect()
+                    # Prefer client.start() + awaiting the returned task when available so
+                    # cancelling self._task does not trigger TikTokLive 7.x's synchronous
+                    # _clean_tasks() (which calls loop.run_until_complete on a running loop).
+                    if hasattr(client, "start"):
+                        ws_task = await client.start()
+                        await ws_task
+                    else:
+                        await client.connect()
                 except asyncio.CancelledError:
                     raise
                 except Exception as exc:
@@ -112,6 +145,7 @@ class TikTokBridge:
                 self._state = "error" if self._error else "disconnected"
         finally:
             if not self._stop_requested:
+                await _close_client(client)
                 await self._notify()
 
     async def disconnect(self) -> dict[str, Any]:
@@ -125,10 +159,7 @@ class TikTokBridge:
             self._error = None
             self._username = None
         if client is not None:
-            try:
-                await asyncio.wait_for(client.disconnect(), timeout=5)
-            except Exception as exc:
-                logger.info("TikTok LIVE disconnect: %s", exc)
+            await _close_client(client)
         if task is not None and not task.done():
             task.cancel()
             try:
