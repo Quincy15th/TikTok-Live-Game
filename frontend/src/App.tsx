@@ -18,6 +18,7 @@ type GameState = {
 }
 type GameMessage = { type: string; data?: GameState }
 type AnswerResult = { accepted: boolean; points?: number; reason?: string }
+type TikTokStatus = { status: string; username: string | null; error: string | null; comments_received: number }
 
 async function post<T>(path: string, body: object = {}): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -35,9 +36,13 @@ function App() {
   const [answer, setAnswer] = useState('')
   const [feedback, setFeedback] = useState('')
   const [busy, setBusy] = useState(false)
+  const [liveUser, setLiveUser] = useState('')
+  const [liveStatus, setLiveStatus] = useState<TikTokStatus | null>(null)
+  const [liveBusy, setLiveBusy] = useState(false)
   const { status, lastMessage } = useWebSocket<GameMessage>()
 
   useEffect(() => {
+    apiGet<TikTokStatus>('/tiktok/status').then(setLiveStatus).catch(() => {})
     apiGet<GameState>('/game/state')
       .then(setState)
       .catch(() => setFeedback('Không thể kết nối backend. Hãy chạy FastAPI ở cổng 8000.'))
@@ -45,6 +50,7 @@ function App() {
 
   useEffect(() => {
     if (lastMessage?.type === 'game_state' && lastMessage.data) setState(lastMessage.data)
+    if (lastMessage?.type === 'tiktok_status' && lastMessage.data) setLiveStatus(lastMessage.data as unknown as TikTokStatus)
   }, [lastMessage])
 
   useEffect(() => {
@@ -82,6 +88,20 @@ function App() {
     }
   }
 
+  async function toggleLive() {
+    setLiveBusy(true)
+    try {
+      const active = liveStatus?.status === 'connected' || liveStatus?.status === 'connecting' || liveStatus?.status === 'reconnecting'
+      const result = await post<TikTokStatus>(active ? '/tiktok/disconnect' : '/tiktok/connect', active ? {} : { username: liveUser.trim() })
+      setLiveStatus(result)
+      setFeedback(active ? 'Đã ngắt kết nối LIVE.' : 'Đang thử kết nối TikTok LIVE…')
+    } catch {
+      setFeedback('Không thể kết nối TikTok LIVE. Kiểm tra username, môi trường Python và backend logs.')
+    } finally {
+      setLiveBusy(false)
+    }
+  }
+
   const letters = state
     ? Array.from({ length: state.length }, (_, index) => state.hint[index] ?? '·')
     : []
@@ -101,7 +121,7 @@ function App() {
 
         <div className="interaction-banner">
           <strong>🎁 QUÀ & TƯƠNG TÁC</strong>
-          <span>Chế độ chơi thử • Chưa kết nối TikTok LIVE</span>
+          <span>{liveStatus?.status === 'connected' ? `Đang kết nối @${liveStatus.username} • ${liveStatus.comments_received} bình luận` : 'Chế độ Demo • Có thể kết nối TikTok LIVE trong bảng điều khiển'}</span>
         </div>
 
         <main className="question">
@@ -159,7 +179,7 @@ function App() {
 
         <footer className="overlay-footer">
           <strong>Gõ đáp án vào bình luận để chơi</strong>
-          <span>Demo Mode • Kết nối TikTok LIVE sẽ được bổ sung sau</span>
+          <span>{liveStatus?.status === 'connected' ? `Đang nhận bình luận từ @${liveStatus.username}` : 'Demo Mode • Chưa nhận bình luận TikTok thật'}</span>
         </footer>
       </section>
 
@@ -170,7 +190,15 @@ function App() {
             ● WebSocket: {status}
           </span>
         </div>
-        <h2>Điều khiển trò chơi</h2>
+        <h2>Kết nối TikTok LIVE</h2>
+        <p>Chỉ dùng với livestream công khai đang phát. Không cần nhập mật khẩu TikTok.</p>
+        <label htmlFor="live-user">TikTok username</label>
+        <input id="live-user" placeholder="@username" maxLength={31} value={liveUser} onChange={(event) => setLiveUser(event.target.value)} />
+        <button type="button" disabled={liveBusy || (!liveUser.trim() && !['connected','connecting','reconnecting'].includes(liveStatus?.status ?? ''))} onClick={toggleLive}>
+          {['connected','connecting','reconnecting'].includes(liveStatus?.status ?? '') ? 'Ngắt kết nối LIVE' : 'Kết nối LIVE'}
+        </button>
+        <p role="status">TikTok: {liveStatus?.status ?? 'disconnected'} {liveStatus?.error ? `• ${liveStatus.error}` : ''}</p>
+        <h2>Điều khiển trò chơi (Demo)</h2>
         <p>Giả lập bình luận TikTok để kiểm tra chấm điểm và bảng xếp hạng.</p>
         <form onSubmit={submit}>
           <label htmlFor="player">Tên người chơi</label>
