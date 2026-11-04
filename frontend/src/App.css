@@ -1,0 +1,12 @@
+.app {
+  max-width: 640px;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.status {
+  list-style: none;
+  padding: 0;
+  line-height: 2;
+}

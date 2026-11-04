@@ -1,0 +1,42 @@
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- Environment ----
+.env
+.env.*
+!.env.example
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# ---- SQLite ----
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ---- Logs ----
+logs/
+*.log
