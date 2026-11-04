@@ -1,0 +1,3 @@
+# Install this optional file only when connecting to a real TikTok LIVE.
+-r requirements.txt
+TikTokLive>=6.0
