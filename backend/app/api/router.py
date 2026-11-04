@@ -1,8 +1,8 @@
-"""Aggregates all REST routers under `/api`."""
-
+"""Aggregates REST routers under /api."""
 from fastapi import APIRouter
 
-from app.api.routes import health
+from app.api.routes import game, health
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
+api_router.include_router(game.router)

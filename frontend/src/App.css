@@ -1,12 +1,60 @@
-.app {
-  max-width: 640px;
-  margin: 4rem auto;
-  padding: 0 1rem;
-  text-align: center;
-}
+.layout { display: grid; grid-template-columns: minmax(360px, 640px) minmax(280px, 360px); gap: 30px; justify-content: center; align-items: start; padding: 28px 20px 64px; }
+.overlay { position: relative; overflow: hidden; aspect-ratio: 9 / 16; color: #e8ecff; border-radius: 22px; padding: 30px 24px; display: flex; flex-direction: column; gap: 24px; box-shadow: 0 30px 80px #030b2790; background: radial-gradient(ellipse at 95% 30%, #344877 0%, transparent 50%), linear-gradient(150deg,#23345f,#121d3f 65%,#101b39); box-sizing: border-box; }
+.overlay::before { content: ''; position: absolute; width: 70%; aspect-ratio: 1; border: 1px solid #7080ba20; border-radius: 50%; right: -20%; top: 20%; pointer-events: none; }
+.live-header { display: flex; gap: 8px; justify-content: space-between; align-items: center; font-size: clamp(10px,1.4vw,15px); font-weight: 800; }
+.live-mark { background: #fe3868; color: white; padding: 8px 10px; border-radius: 24px; }
+.live-brand { letter-spacing: .14em; }
+.live-viewers { background: #ffffff20; padding: 8px 10px; border-radius: 20px; }
+.interaction-banner { display: flex; flex-direction: column; gap: 6px; background: #0e183b9c; border: 1px solid #6677a33b; padding: 12px 16px; border-radius: 12px; font-size: clamp(10px,1.2vw,13px); }
+.interaction-banner span { opacity: .8; }
+.question { display: flex; flex: 1; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 0; }
+.question-id { font-size: clamp(12px,1.6vw,18px); letter-spacing: .08em; opacity: .75; font-weight: 700; }
+.question h1 { font-family: Georgia,serif; font-size: clamp(38px,5vw,68px); margin: 20px 0 9px; line-height: 1.1; color: #e3e8ff; }
+.question-subtitle { font-size: clamp(20px,2.8vw,32px); font-weight: 500; }
+.timer-line { width: 100%; display: flex; justify-content: space-between; align-items: end; font-size: clamp(10px,1.5vw,17px); letter-spacing: .03em; margin-top: auto; }
+.timer-line b { font-size: clamp(22px,3vw,38px); }
+.timer-line small { font-size: 15px; }
+.timer-track { width: 100%; height: 9px; background: #0a1230; border-radius: 20px; overflow: hidden; margin-top: 12px; }
+.timer-progress { background: linear-gradient(90deg,#79e9bf,#f8dc80); height: 100%; transition: width .4s linear; }
+.letters { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(3px,.7vw,9px); margin-top: 34px; }
+.letter { display: grid; place-items: center; width: clamp(29px,4.2vw,56px); aspect-ratio: .8; font-size: clamp(20px,3vw,38px); font-weight: 800; border-radius: 9px; border: 2px solid #8fa1c02c; background: #1b3054; color: #cfd9f6; }
+.letter.filled { color: #1f3656; background: #dbe7ff; border-color: #dbe7ff; }
+.winner-panel { display: flex; gap: 16px; align-items: center; padding: 18px; border: 1px solid #91a5d6a0; background: #142244; border-radius: 15px; }
+.trophy { font-size: clamp(26px,4.5vw,52px); }
+.winner-panel div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.winner-panel small { font-weight: 800; opacity: .65; font-size: clamp(9px,1.2vw,14px); }
+.winner-panel strong { font-size: clamp(16px,2.5vw,28px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.winner-panel div span { font-size: clamp(10px,1.2vw,14px); opacity: .75; }
+.score-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 22%; }
+.score-panel { background: #101d40b5; border: 1px solid #8091ba30; border-radius: 14px; padding: 12px; overflow: hidden; }
+.score-panel h2 { margin: 0 0 14px; font-size: clamp(11px,1.4vw,17px); }
+.score-panel p { opacity: .6; font-size: 13px; }
+.score-row { display: flex; gap: 5px; justify-content: space-between; align-items: center; padding: 9px 6px; font-size: clamp(10px,1.3vw,15px); border-bottom: 1px solid #ffffff13; }
+.score-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.score-row b { flex: 0 0 auto; }
+.recent-row { border-left: 3px solid #68dba8; background: #75d3ca14; margin-bottom: 5px; border-radius: 4px; }
+.recent-row b { color: #7fe2ad; }
+.overlay-footer { display: flex; flex-direction: column; gap: 8px; text-align: center; padding-bottom: 5px; }
+.overlay-footer strong { font-size: clamp(15px,2.5vw,27px); }
+.overlay-footer span { opacity: .65; font-size: clamp(10px,1.3vw,14px); }
+.controls { background: #fff; color: #172039; border: 1px solid #dce1ea; box-shadow: 0 15px 40px #1b264020; padding: 24px; border-radius: 18px; }
+.control-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; }
+.mode-pill { background: #ffe5eb; color: #bb204b; font-weight: 800; padding: 7px 9px; border-radius: 30px; }
+.connection { color: #a95e38; } .connection.online { color: #167c60; }
+.controls h2 { font-size: 26px; margin: 26px 0 8px; }
+.controls p { line-height: 1.6; color: #66718a; font-size: 14px; }
+.controls form { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.controls label { font-size: 13px; font-weight: 700; }
+.controls input { padding: 12px; border: 1px solid #ccd4e1; border-radius: 9px; font: inherit; background: #fff; color: #172039; }
+.controls button { background: #eb3667; color: white; padding: 12px; border: none; border-radius: 9px; font-weight: 800; margin-top: 8px; cursor: pointer; font: inherit; }
+.controls button:disabled { opacity: .4; cursor: not-allowed; }
+.controls .secondary-button { background: #23345f; width: 100%; margin-top: 12px; }
+.feedback { margin: 16px 0; min-height: 25px; font-size: 14px; font-weight: 650; color: #37446c; }
+.control-note { border-top: 1px solid #dce1ea; padding-top: 15px; margin-top: 22px; font-size: 13px; }
+.control-note code { background: #f0f3f8; padding: 2px 3px; overflow-wrap: anywhere; }
+@media(max-width: 830px) { .layout { grid-template-columns: minmax(0, 1fr); padding: 10px; } .overlay { width: min(100%,540px); margin: auto; padding: 20px 14px; gap: 16px; } .controls { width: min(100%,540px); box-sizing: border-box; margin: auto; } .question h1 { font-size: clamp(32px,8vw,60px); } .letter { width: clamp(24px,8vw,49px); } }
 
-.status {
-  list-style: none;
-  padding: 0;
-  line-height: 2;
-}
+/* OBS Browser Source: keep a clean portrait canvas with no controller. */
+.layout.overlay-only { display: block; padding: 0; margin: 0; }
+.overlay-only .overlay { width: 100vw; height: 100vh; aspect-ratio: 9 / 16; border-radius: 0; margin: 0; box-shadow: none; }
+.overlay-only .controls { display: none; }
