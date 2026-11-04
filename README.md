@@ -176,3 +176,12 @@ implementation retries failed connections up to three times; persistent
 connections and automated reconnection need further real-stream testing.
 
 No TikTok credentials, cookies, or passwords are required by this integration.
+
+
+### Portrait overlay browser preview
+
+Open `http://localhost:5173/?overlay=1`. The overlay now remains **9:16**
+even in a wide desktop browser, centered horizontally. For a full-screen
+OBS/TikTok LIVE Studio browser source, set width **1080** and height **1920**;
+the exact same URL then fills the portrait source. Use `http://localhost:5173`
+for the controller. This is a CSS-only fix and does not alter LIVE ingestion.
