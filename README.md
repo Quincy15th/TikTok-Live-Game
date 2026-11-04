@@ -145,3 +145,34 @@ moderation and admin authentication are future work.
 
 Run backend tests with `cd backend && pytest` and frontend checks using
 `cd frontend && npm run build && npm run lint`.
+
+
+## TikTok LIVE integration (optional, experimental)
+
+> The TikTokLive Python package is **unofficial**. Public TikTok LIVE chat
+> ingestion can stop working when TikTok changes its protocol, or may not be
+> supported for a specific account/region. Test with your own public livestream.
+
+1. Start from the branch `feature/tiktok-live-integration`.
+2. With Python 3.12, install the optional dependency:
+   `python -m pip install -r backend/requirements-live.txt` from the project root
+   (or `pip install -r requirements-live.txt` while in `backend`).
+3. Start FastAPI **on localhost only**:
+   `cd backend && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000`.
+4. In another terminal: `cd frontend && npm ci && npm run dev`.
+5. Open `http://localhost:5173`, enter the public LIVE account's @username,
+   and click **Kết nối LIVE**.
+6. When the status says `connected`, viewers can type English answers in
+   TikTok comments. Correct answers earn 10 points once per question per
+   TikTok unique_id; incorrect comments do not score.
+7. Keep OBS Browser Source on `http://localhost:5173/?overlay=1`.
+
+REST endpoints: `GET /api/tiktok/status`, `POST /api/tiktok/connect`
+(JSON `{"username":"example"}`), `POST /api/tiktok/disconnect`.
+Start/stop endpoints accept **loopback clients only** and have **no authentication**;
+do not expose the backend to your LAN or the public internet. Demo mode remains
+available. Status updates are sent through the existing WebSocket. The current
+implementation retries failed connections up to three times; persistent
+connections and automated reconnection need further real-stream testing.
+
+No TikTok credentials, cookies, or passwords are required by this integration.
