@@ -36,12 +36,26 @@ def test_correct_answer_scores_once_and_next_question_resets() -> None:
 def test_time_up_rejects_submission_and_questions_wrap_around() -> None:
     async def scenario() -> None:
         game = QuizGame()
-        with patch("app.services.quiz.manager.broadcast", new_callable=AsyncMock):
+        with patch("app.services.quiz.manager.broadcast", new_callable=AsyncMock) as mock_broadcast:
             game.started_at -= game.duration + 1
             expired = await game.submit("viewer1", "jacket")
             assert expired == {"accepted": False, "reason": "time_up"}
 
-            for _ in range(len(QUESTIONS)):
+            # Verify run_clock() automatically transitions to question 2 when remaining == 0.
+            clock = asyncio.create_task(game.run_clock())
+            await asyncio.sleep(1.15)
+            clock.cancel()
+            try:
+                await clock
+            except asyncio.CancelledError:
+                pass
+            state_after_clock = await game.get_state()
+            assert state_after_clock["question_number"] == 2
+            assert state_after_clock["prompt"] == QUESTIONS[1]["prompt"]
+            assert state_after_clock["remaining"] > 0
+            assert mock_broadcast.called
+
+            for _ in range(len(QUESTIONS) - 1):
                 await game.next_question()
             state = await game.get_state()
             assert state["prompt"] == QUESTIONS[0]["prompt"]
