@@ -9,7 +9,7 @@ A full-stack, real-time interactive game for TikTok LIVE streams.
 | Realtime  | WebSocket (FastAPI ⇄ browser)          |
 | Database  | SQLite via SQLAlchemy 2 (async, aiosqlite) |
 
-> **Status:** project skeleton only — game/business logic is not implemented yet.
+> **Status:** quiz demo and OBS portrait overlay implemented; experimental TikTok LIVE comment bridge available but requires validation against a real active stream.
 
 ## Project structure
 
