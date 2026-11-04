@@ -1,6 +1,7 @@
 """Live bridge input and localhost-only admin checks; never access TikTok."""
 from fastapi.testclient import TestClient
 
+from app.api.routes.tiktok import require_local_client
 from app.main import app
 from app.services.tiktok_live import USERNAME
 
@@ -20,6 +21,11 @@ def test_status_endpoint_is_available_without_live_dependency() -> None:
 
 
 def test_live_connection_rejects_invalid_username() -> None:
-    with TestClient(app) as client:
-        response = client.post("/api/tiktok/connect", json={"username": "bad user"})
-        assert response.status_code in (409, 422)
+    # Starlette TestClient uses 'testclient', not a loopback IP address.
+    app.dependency_overrides[require_local_client] = lambda: None
+    try:
+        with TestClient(app) as client:
+            response = client.post("/api/tiktok/connect", json={"username": "bad user"})
+            assert response.status_code == 422
+    finally:
+        app.dependency_overrides.pop(require_local_client, None)
