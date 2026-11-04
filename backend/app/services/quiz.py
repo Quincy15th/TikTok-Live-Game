@@ -6,7 +6,6 @@ simulated; never expose the demo write endpoints on an untrusted network.
 import asyncio
 import time
 import unicodedata
-from collections import defaultdict
 from typing import Any
 
 from app.websocket.manager import manager
