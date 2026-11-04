@@ -1,6 +1,6 @@
 """REST endpoints for the explicitly simulated quiz demo."""
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.services.quiz import game
 
@@ -8,6 +8,8 @@ router = APIRouter(prefix="/game", tags=["game"])
 
 
 class AnswerRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     name: str = Field(min_length=1, max_length=40)
     answer: str = Field(min_length=1, max_length=100)
 

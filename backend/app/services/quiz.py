@@ -6,7 +6,6 @@ simulated; never expose the demo write endpoints on an untrusted network.
 import asyncio
 import time
 import unicodedata
-from collections import defaultdict
 from typing import Any
 
 from app.websocket.manager import manager
@@ -78,6 +77,8 @@ class QuizGame:
 
     async def submit(self, name: str, answer: str) -> dict[str, Any]:
         key = normalize(name)
+        if not key:
+            return {"accepted": False, "reason": "invalid_name"}
         async with self.lock:
             if self.snapshot()["remaining"] == 0:
                 return {"accepted": False, "reason": "time_up"}

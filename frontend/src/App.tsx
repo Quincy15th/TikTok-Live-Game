@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
+import { config } from './config'
 import { useWebSocket } from './hooks/useWebSocket'
 import { apiGet } from './services/api'
 import './App.css'
@@ -20,7 +21,7 @@ type GameMessage = { type: string; data?: GameState }
 type AnswerResult = { accepted: boolean; points?: number; reason?: string }
 
 async function post<T>(path: string, body: object = {}): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${config.apiUrl}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -29,23 +30,50 @@ async function post<T>(path: string, body: object = {}): Promise<T> {
   return response.json() as Promise<T>
 }
 
+const overlayOnly = new URLSearchParams(window.location.search).has('overlay')
+
+// Design canvas for the OBS overlay (9:16). It is scaled to fit the Browser Source,
+// so typography keeps the same proportions at 1080×1920 as in the preview.
+const OVERLAY_WIDTH = 640
+const OVERLAY_HEIGHT = 1138
+
+function computeOverlayStyle(): CSSProperties {
+  const scale = Math.min(window.innerWidth / OVERLAY_WIDTH, window.innerHeight / OVERLAY_HEIGHT)
+  const left = (window.innerWidth - OVERLAY_WIDTH * scale) / 2
+  return { transform: `translateX(${left}px) scale(${scale})` }
+}
+
+function useOverlayScale(enabled: boolean): CSSProperties | undefined {
+  const [style, setStyle] = useState<CSSProperties | undefined>(() => (enabled ? computeOverlayStyle() : undefined))
+
+  useEffect(() => {
+    if (!enabled) return
+    const onResize = () => setStyle(computeOverlayStyle())
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [enabled])
+
+  return style
+}
+
 function App() {
   const [state, setState] = useState<GameState | null>(null)
   const [name, setName] = useState('viewer_demo')
   const [answer, setAnswer] = useState('')
   const [feedback, setFeedback] = useState('')
   const [busy, setBusy] = useState(false)
-  const { status, lastMessage } = useWebSocket<GameMessage>()
+  const { status } = useWebSocket<GameMessage>({
+    onMessage: (message) => {
+      if (message.type === 'game_state' && message.data) setState(message.data)
+    },
+  })
+  const overlayStyle = useOverlayScale(overlayOnly)
 
   useEffect(() => {
     apiGet<GameState>('/game/state')
       .then(setState)
       .catch(() => setFeedback('Không thể kết nối backend. Hãy chạy FastAPI ở cổng 8000.'))
   }, [])
-
-  useEffect(() => {
-    if (lastMessage?.type === 'game_state' && lastMessage.data) setState(lastMessage.data)
-  }, [lastMessage])
 
   useEffect(() => {
     if (status === 'open') {
@@ -88,11 +116,9 @@ function App() {
   const remaining = state?.remaining ?? 0
   const progress = state ? (remaining / state.duration) * 100 : 0
 
-  const overlayOnly = new URLSearchParams(window.location.search).has('overlay')
-
   return (
     <div className={overlayOnly ? 'layout overlay-only' : 'layout'}>
-      <section className="overlay" aria-label="Màn hình trò chơi TikTok Live">
+      <section className="overlay" style={overlayStyle} aria-label="Màn hình trò chơi TikTok Live">
         <header className="live-header">
           <span className="live-mark">● DEMO LIVE</span>
           <span className="live-brand">TIKTOK QUIZ</span>
