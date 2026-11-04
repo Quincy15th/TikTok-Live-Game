@@ -59,11 +59,12 @@ function App() {
     setBusy(true)
     try {
       const result = await post<AnswerResult>('/game/answer', { name: name.trim(), answer: answer.trim() })
-      setFeedback(result.accepted ? '+10 điểm! Chính xác 🎉' : ({
+      const messages: Record<string, string> = {
         incorrect: 'Chưa đúng, thử lại nhé!',
         already_correct: 'Bạn đã trả lời đúng câu này rồi.',
         time_up: 'Hết giờ cho câu này.',
-      }[result.reason ?? ''] ?? 'Chưa ghi nhận đáp án.'))
+      }
+      setFeedback(result.accepted ? '+10 điểm! Chính xác 🎉' : (messages[result.reason ?? ''] ?? 'Chưa ghi nhận đáp án.'))
       setAnswer('')
     } catch {
       setFeedback('Không gửi được đáp án. Kiểm tra kết nối backend.')
