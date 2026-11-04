@@ -116,3 +116,32 @@ Frontend overrides go in `frontend/.env.local` (`VITE_API_URL`, `VITE_WS_URL`).
 git remote add origin https://github.com/<your-username>/TikTok-Live-Game.git
 git push -u origin main
 ```
+
+
+## Quiz MVP (demo mode)
+
+This branch includes a local-only quiz simulation. It **does not connect to TikTok LIVE**.
+The game begins at question 1 (answer: `jacket`) and cycles through eight
+Vietnamese-to-English questions every 30 seconds. Correct answers earn 10 points
+per viewer per question; scores and history are held in memory and reset on restart.
+
+1. Run backend and frontend using the setup instructions above.
+2. Visit http://localhost:5173/ to use the demo controls.
+3. Submit a player name and an English answer, or click Next Question.
+4. Add an OBS Browser Source pointing to `http://localhost:5173/?overlay=1`,
+   with width **1080** and height **1920** to show only the portrait overlay.
+
+Demo REST API:
+- `GET /api/game/state` — current question, timer and scores.
+- `POST /api/game/answer` — simulated comment, JSON `{"name":"viewer","answer":"jacket"}`.
+- `POST /api/game/next` — manually advance question.
+
+WebSocket broadcasts `{"type":"game_state","data":...}` on each tick and score update.
+
+**Safety:** demo write endpoints do not have authentication. Run only on your own
+computer, bind Uvicorn to `127.0.0.1` (the default), and do not publish the
+backend on a public server. Production TikTok integration, persistence,
+moderation and admin authentication are future work.
+
+Run backend tests with `cd backend && pytest` and frontend checks using
+`cd frontend && npm run build && npm run lint`.
