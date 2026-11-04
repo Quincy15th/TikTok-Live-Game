@@ -53,3 +53,8 @@
 .control-note { border-top: 1px solid #dce1ea; padding-top: 15px; margin-top: 22px; font-size: 13px; }
 .control-note code { background: #f0f3f8; padding: 2px 3px; overflow-wrap: anywhere; }
 @media(max-width: 830px) { .layout { grid-template-columns: minmax(0, 1fr); padding: 10px; } .overlay { width: min(100%,540px); margin: auto; padding: 20px 14px; gap: 16px; } .controls { width: min(100%,540px); box-sizing: border-box; margin: auto; } .question h1 { font-size: clamp(32px,8vw,60px); } .letter { width: clamp(24px,8vw,49px); } }
+
+/* OBS Browser Source: keep a clean portrait canvas with no controller. */
+.layout.overlay-only { display: block; padding: 0; margin: 0; }
+.overlay-only .overlay { width: 100vw; height: 100vh; aspect-ratio: 9 / 16; border-radius: 0; margin: 0; box-shadow: none; }
+.overlay-only .controls { display: none; }
