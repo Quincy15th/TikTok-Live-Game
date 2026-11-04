@@ -10,6 +10,7 @@ from app.api.router import api_router
 from app.core.config import get_settings
 from app.db.session import init_db
 from app.services.quiz import game
+from app.services.tiktok_live import bridge
 from app.websocket.routes import router as ws_router
 
 settings = get_settings()
@@ -22,6 +23,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     try:
         yield
     finally:
+        await bridge.disconnect()
         clock.cancel()
         try:
             await clock

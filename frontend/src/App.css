@@ -54,7 +54,54 @@
 .control-note code { background: #f0f3f8; padding: 2px 3px; overflow-wrap: anywhere; }
 @media(max-width: 830px) { .layout { grid-template-columns: minmax(0, 1fr); padding: 10px; } .overlay { width: min(100%,540px); margin: auto; padding: 20px 14px; gap: 16px; } .controls { width: min(100%,540px); box-sizing: border-box; margin: auto; } .question h1 { font-size: clamp(32px,8vw,60px); } .letter { width: clamp(24px,8vw,49px); } }
 
-/* OBS Browser Source: keep a clean portrait canvas with no controller. */
-.layout.overlay-only { display: block; padding: 0; margin: 0; }
-.overlay-only .overlay { width: 100vw; height: 100vh; aspect-ratio: 9 / 16; border-radius: 0; margin: 0; box-shadow: none; }
+/* Portrait-only page: preview at 9:16 even in a wide desktop browser.
+   In OBS at 1080×1920 this fills the entire browser source exactly. */
+.layout.overlay-only {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+.overlay-only .overlay {
+  width: min(100vw, 56.25vh);
+  width: min(100vw, 56.25dvh);
+  aspect-ratio: 9 / 16;
+  height: auto;
+  flex: 0 0 auto;
+  border-radius: 0;
+  margin: 0;
+  padding: clamp(12px, 3cqw, 32px) clamp(10px, 2.4cqw, 26px);
+  gap: clamp(8px, 2.4cqw, 24px);
+  box-shadow: none;
+}
 .overlay-only .controls { display: none; }
+
+/* Size overlay typography relative to the portrait canvas, not the browser
+   window: desktop preview and 1080×1920 OBS source stay visually consistent. */
+.overlay { container-type: inline-size; }
+.overlay .live-header { font-size: clamp(10px, 1.5cqw, 16px); }
+.overlay .interaction-banner { font-size: clamp(10px, 1.3cqw, 14px); }
+.overlay .question-id { font-size: clamp(12px, 1.7cqw, 19px); }
+.overlay .question h1 { font-size: clamp(33px, 6.2cqw, 70px); overflow-wrap: anywhere; }
+.overlay .question-subtitle { font-size: clamp(20px, 3cqw, 34px); }
+.overlay .timer-line { font-size: clamp(11px, 1.6cqw, 18px); }
+.overlay .timer-line b { font-size: clamp(24px, 3.4cqw, 40px); }
+.overlay .letters { gap: clamp(3px, .9cqw, 9px); }
+.overlay .letter { width: clamp(24px, 5.2cqw, 58px); font-size: clamp(18px, 3.4cqw, 38px); }
+.overlay .trophy { font-size: clamp(26px, 4.9cqw, 54px); }
+.overlay .winner-panel small { font-size: clamp(9px, 1.25cqw, 14px); }
+.overlay .winner-panel strong { font-size: clamp(16px, 2.7cqw, 30px); }
+.overlay .winner-panel div span { font-size: clamp(10px, 1.3cqw, 15px); }
+.overlay .score-panel h2 { font-size: clamp(11px, 1.5cqw, 17px); }
+.overlay .score-row { font-size: clamp(10px, 1.4cqw, 16px); }
+.overlay .overlay-footer strong { font-size: clamp(15px, 2.7cqw, 29px); }
+.overlay .overlay-footer span { font-size: clamp(10px, 1.3cqw, 14px); }
+
+/* Retain generous space for the 30-second bar and avoid overlay text
+   extending outside the portrait frame. */
+.overlay .question { min-height: 0; }
+.overlay .score-panels { min-height: 0; flex: 0 0 22%; }
